@@ -8,6 +8,11 @@ extends SceneTree
 const SUITE_SCRIPTS: Array[Script] = [
 	preload("res://tests/test_combat.gd"),
 	preload("res://tests/test_persistence.gd"),
+	preload("res://tests/test_ship_controller.gd"),
+]
+const ASYNC_SUITE_PATHS := [
+	"res://tests/test_ship_controller.gd",
+	"res://tests/test_flight.gd",
 ]
 const SCENE_PATHS: Array[String] = [
 	"res://scenes/main.tscn",
@@ -16,6 +21,7 @@ const SCENE_PATHS: Array[String] = [
 	"res://scenes/hub.tscn",
 	"res://scenes/actors/player.tscn",
 	"res://scenes/actors/sentinel.tscn",
+	"res://scenes/actors/ship.tscn",
 ]
 
 var _failures: Array[String] = []
@@ -28,9 +34,23 @@ func _init() -> void:
 func _run() -> void:
 	for suite_script: Script in SUITE_SCRIPTS:
 		var suite = suite_script.new()
-		var suite_failures: Array[String] = suite.run()
+		var suite_failures: Array[String]
+		if suite_script.resource_path in ASYNC_SUITE_PATHS:
+			suite_failures = await suite.run(self)
+		else:
+			suite_failures = suite.run()
 		for failure: String in suite_failures:
 			_failures.append("%s: %s" % [suite_script.resource_path, failure])
+
+	# Flight integration is added after the actor suite so older checkouts remain
+	# runnable while the authored flight test is being assembled.
+	if _failures.is_empty() and ResourceLoader.exists("res://tests/test_flight.gd"):
+		var flight_script := load("res://tests/test_flight.gd") as Script
+		if flight_script != null:
+			var flight_suite = flight_script.new()
+			var flight_failures: Array[String] = await flight_suite.run(self)
+			for failure: String in flight_failures:
+				_failures.append("%s: %s" % [flight_script.resource_path, failure])
 
 	# The integrated slice suite is optional while the authored world is being
 	# assembled. Its async signature receives this SceneTree so it can load and

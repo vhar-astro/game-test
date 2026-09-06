@@ -22,6 +22,8 @@ var shard_model: Node3D
 var elapsed := 0.0
 var models: Dictionary = {}
 var basalt_material: StandardMaterial3D
+var walkable_areas: Array[AABB] = []
+var flight_bounds := AABB(Vector3(-60, -12, -100), Vector3(120, 50, 140))
 
 func _ready() -> void:
 	if not has_meta("build_by_main"):
@@ -76,6 +78,7 @@ func solid_box(at: Vector3, size: Vector3, parent: Node = self) -> StaticBody3D:
 func _floor(at: Vector3, width: int, length: int) -> void:
 	# Tile tops and the single matching collider both lie at y=0.
 	solid_box(at + Vector3(0, -0.20, 0), Vector3(width * 2, 0.4, length * 2))
+	walkable_areas.append(AABB(at + Vector3(-width, -0.2, -length), Vector3(width * 2, 0.4, length * 2)))
 	for x in range(width):
 		for z in range(length):
 			model("tile", at + Vector3((x - (width - 1) * 0.5) * 2, 0.005, (z - (length - 1) * 0.5) * 2))
@@ -84,6 +87,8 @@ func _tree(at: Vector3, size: float) -> void:
 	model("crystal_tree", at, Vector3.ONE * size, at.x)
 	var body := StaticBody3D.new()
 	body.position = at + Vector3(0, size * 1.9, 0)
+	body.collision_layer = 1
+	body.collision_mask = 0
 	var col := CollisionShape3D.new()
 	var shape := CylinderShape3D.new()
 	shape.radius = 0.72 * size
@@ -91,6 +96,13 @@ func _tree(at: Vector3, size: float) -> void:
 	col.shape = shape
 	body.add_child(col)
 	add_child(body)
+
+func _column(at: Vector3, size := Vector3.ONE, angle := 0.0) -> Node3D:
+	var column := model("column", at, size, angle)
+	# The art is deliberately ornate, so use a modest solid core to make it a
+	# reliable obstacle for the player, ship hull, landing clearance and camera.
+	solid_box(at + Vector3(0, 1.45 * size.y, 0), Vector3(0.9 * size.x, 2.9 * size.y, 0.9 * size.z))
+	return column
 
 func _label(text: String, at: Vector3, color := MINT, size := 34) -> Label3D:
 	var label := Label3D.new()
@@ -110,16 +122,17 @@ func _interactive(id: String, obj: Node3D, offset := Vector3(0, 1, 0)) -> void:
 
 func _forest() -> void:
 	spawn_position = Vector3(0, 0.12, 15)
+	flight_bounds = AABB(Vector3(-60, -12, -100), Vector3(120, 50, 140))
 	model("island", Vector3(0, -0.23, -13), Vector3(20, 4, 40))
 	_floor(Vector3(0, 0, -13), 11, 31)
-	# A spacious landing, a readable optical court, a sealed encounter, a quiet reward.
-	model("ship", Vector3(-5.6, 0, 14), Vector3.ONE * 1.25, -0.35)
-	solid_box(Vector3(-5.6, 1, 14), Vector3(6.0, 2, 6.0))
+	# ExplorerShip owns the dock craft and its collision. This remains an open,
+	# level landing pad with room for the hull, pilot exit and camera.
 	for spec in [Vector3(-10,0,8), Vector3(10,0,12), Vector3(9,0,2), Vector3(-10,0,-8), Vector3(10,0,-12), Vector3(-9,0,-26), Vector3(9,0,-31), Vector3(-8,0,-39)]:
 		_tree(spec, 1.0 + absf(spec.z) * 0.022)
 	for i in range(22):
 		var side := -1.0 if i % 2 else 1.0
-		model("crystal_tree", Vector3(side * (13.0 + (i%3)), -0.2, 19.0 - i*2.9), Vector3.ONE * (1.3 + (i%4)*0.4), i)
+		_tree(Vector3(side * (13.0 + (i%3)), -0.2, 19.0 - i*2.9), 1.3 + (i % 4) * 0.4)
+	_flight_observatory()
 	for i in range(3):
 		var prism := model("prism", PRISM_POINTS[i])
 		prism_models.append(prism)
@@ -145,8 +158,7 @@ func _forest() -> void:
 		for x in range(3,12):
 			model("column",Vector3(x*side,0,-14),Vector3(1,1.0,1))
 	# An obstacle forces the guardian to use navigation instead of direct translation.
-	model("column", Vector3(2.7,0,-21),Vector3(1.5,0.7,1.5))
-	solid_box(Vector3(2.7,1.4,-21),Vector3(1.5,2.8,1.5))
+	_column(Vector3(2.7,0,-21),Vector3(1.5,0.7,1.5))
 	model("pedestal", Vector3(0,0,-29))
 	artifact_model = model("artifact",Vector3(0,1.2,-29),Vector3.ONE*1.25)
 	_interactive("artifact",artifact_model,Vector3.ZERO)
@@ -166,6 +178,20 @@ func _forest() -> void:
 		if z > 8 or z < -15:
 			beam(Vector3(0,0.025,z),Vector3(0,0.025,z-0.7),0.017,MINT*0.5,self)
 
+func _flight_observatory() -> void:
+	# A disconnected, flight-first destination: its 14 by 16 m tile top is
+	# broad enough for the ship's 6.6 by 6.4 m landing footprint.
+	var center := Vector3(-29, 1, 3)
+	model("island", center + Vector3(0, -0.72, 0), Vector3(7, 2.2, 8))
+	_floor(center, 7, 8)
+	model("armillary", center + Vector3(0, 0, -3.0), Vector3.ONE * 1.12, PI * 0.15)
+	solid_box(center + Vector3(0, 1.55, -3.0), Vector3(2.7, 3.1, 2.7))
+	for offset in [Vector3(-5.6, 0, -6.4), Vector3(5.6, 0, -6.4), Vector3(-5.6, 0, 6.4), Vector3(5.6, 0, 6.4)]:
+		_column(center + offset, Vector3(0.85, 1.2, 0.85))
+	_tree(center + Vector3(-5.7, 0, 0.0), 0.82)
+	_tree(center + Vector3(5.7, 0, 0.0), 0.82)
+	_label(tr("FLIGHT_OBSERVATORY"), center + Vector3(0, 4.4, 0), MINT, 30).set_meta("locale_key", "FLIGHT_OBSERVATORY")
+
 func reparent_keep(obj: Node3D, parent: Node3D) -> void:
 	var original := obj.transform
 	remove_child(obj)
@@ -174,11 +200,12 @@ func reparent_keep(obj: Node3D, parent: Node3D) -> void:
 
 func _ruins() -> void:
 	spawn_position = Vector3(0,0.12,8)
+	flight_bounds = AABB(Vector3(-35, -10, -50), Vector3(70, 40, 80))
 	model("island",Vector3(0,-0.3,-5),Vector3(13,5,19))
 	_floor(Vector3(0,0,-4),9,14)
 	for x in [-6,6]:
 		for z in range(4,-15,-6):
-			model("column",Vector3(x,0,z),Vector3(1.2,1.5,1.2))
+			_column(Vector3(x,0,z),Vector3(1.2,1.5,1.2))
 	model("armillary",Vector3(0,0,-10),Vector3.ONE*1.3)
 	solid_box(Vector3(0,1.5,-10),Vector3(3,3,3))
 	for i in range(8):
@@ -190,6 +217,7 @@ func _ruins() -> void:
 
 func _hub() -> void:
 	spawn_position = Vector3(0,0.12,7)
+	flight_bounds = AABB(Vector3(-30, -10, -30), Vector3(60, 40, 60))
 	model("island",Vector3(0,-0.3,0),Vector3(12,2,12))
 	_floor(Vector3.ZERO,9,9)
 	model("armillary",Vector3(0,0,-2))
@@ -201,7 +229,7 @@ func _hub() -> void:
 		_label("I" if x<0 else "II",Vector3(x,4.6,-5),MINT,56)
 	for i in range(12):
 		var a := float(i) / 12.0 * TAU
-		model("column",Vector3(sin(a)*10,0,cos(a)*10),Vector3(.55,.35,.55))
+		_column(Vector3(sin(a)*10,0,cos(a)*10),Vector3(.55,.35,.55))
 
 func _portal_disk(at: Vector3, radius: float) -> MeshInstance3D:
 	# Camera-only collision keeps the spring arm in front of the portal plane.
@@ -350,3 +378,26 @@ func _process(delta: float) -> void:
 func interaction_position(id: String) -> Vector3:
 	var entry: Dictionary=interactables[id]
 	return entry.node.global_position+entry.offset
+
+func surface_boundary_distance(position: Vector3) -> float:
+	# Positive values are metres inside a registered tile surface; a negative
+	# value is the horizontal distance beyond the nearest surface edge.
+	var nearest := -INF
+	for area: AABB in walkable_areas:
+		var minimum := area.position
+		var maximum := area.end
+		var inside := position.x >= minimum.x and position.x <= maximum.x and position.z >= minimum.z and position.z <= maximum.z
+		if inside:
+			nearest = maxf(nearest, minf(minf(position.x - minimum.x, maximum.x - position.x), minf(position.z - minimum.z, maximum.z - position.z)))
+			continue
+		var closest_x := clampf(position.x, minimum.x, maximum.x)
+		var closest_z := clampf(position.z, minimum.z, maximum.z)
+		nearest = maxf(nearest, -Vector2(position.x - closest_x, position.z - closest_z).length())
+	return nearest
+
+static func ship_dock(id: String) -> Vector3:
+	match id:
+		"forest": return Vector3(-5.6, 0.08, 14)
+		"ruins": return Vector3(0, 0, 3)
+		"hub": return Vector3(0, 0, 5)
+		_: return Vector3.ZERO

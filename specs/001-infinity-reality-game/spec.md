@@ -10,7 +10,7 @@
 
 ## Clarifications
 
-**Questions accepted so far**: 149 / 100
+**Questions accepted so far**: 150 / 100
 
 ### Session 2026-09-06
 - Q1: Жанр игры (рекомендация: приключенческий 3D-платформер с элементами головоломок) → A: исследование с загадками; есть враги — роботы (бой присутствует)
@@ -168,7 +168,8 @@
 
 Implementation narrative detail under Q149: the explorer is named **Ari / Ари**, seeking meaning at the convergence of realities. Memories remain single-line fragments, without a companion voice or cutscenes.
 
-The accepted implementation plan is recorded in `plan.md`. Clarification answers take precedence over superseded question wording in the original scenarios. All 149 ledger entries are answered; they are retained as provenance. The first slice deliberately has one puzzle and one ordinary robot; the three-puzzle minimum and guardian boss apply to a complete authored dimension in its later milestone.
+The accepted implementation plan is recorded in `plan.md`. Clarification answers take precedence over superseded question wording in the original scenarios. All 150 ledger entries are answered; they are retained as provenance. The first slice deliberately has one puzzle and one ordinary robot; the three-puzzle minimum and guardian boss apply to a complete authored dimension in its later milestone.
+- Q150: Как GPT-6-Astra создаёт 3D-ассеты в Blender — через скрипты (bpy) или через клики по интерфейсу (computer use)? (рекомендация: только bpy-скрипты, headless, без GUI) → A: только bpy-скрипты, headless, без GUI; исключает зависимость асcет-пайплайна от computer-use ограничений на Linux
 
 ## Open Questions Ledger
 
@@ -324,6 +325,7 @@ The accepted implementation plan is recorded in `plan.md`. Clarification answers
 
 | 148 | 6. Core gameplay loop & mechanics | First puzzle and artifact: light and resonance | Answered |
 | 149 | 17. Project process & delivery | Remaining first-slice design details delegated within spec | Answered |
+| 150 | 3. Engine & technology | Как GPT-6-Astra создаёт 3D-ассеты в Blender — через скрипты (bpy) или через клики по интерфейсу (computer use)? (рекомендация: только bpy-скрипты, headless, без GUI) | Answered |
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -645,6 +647,8 @@ The accepted implementation plan is recorded in `plan.md`. Clarification answers
 - **FR-051**: Звездолёт персонажа ДОЛЖЕН быть отдельным режимом передвижения с заданной областью применения, управлением, ролью в бою, прогрессией и правилами посадки: **[Q140: свободный полёт внутри измерения между зонами/островами + перелёт к порталу; загадки решаются пешком]** **[Q141: аркадное управление (как No Man's Sky): WASD + мышь, мгновенный отклик, автовыравнивание]** **[Q142: боя на корабле нет; летающие роботы могут преследовать, спасение — улететь]** **[Q143: корабль не улучшается]** **[Q144: посадка где угодно на ровной поверхности; корабль остаётся на месте посадки]** **[Q145: нет — хаб стационарная станция (следует из Q51); корабль не хаб]**.
 
 - **FR-052**: Роль меча и понятие «ресурсов» ДОЛЖНЫ быть согласованы с исключением крафта и расходуемых ресурсов: **[Q146: меч срезает кристальные преграды и откалывает осколки-воспоминания для коллекции и лора; осколки не расходуются]**.
+
+- **FR-054**: Конвейер Blender ДОЛЖЕН использовать только bpy-скрипты в headless-режиме (`blender --background`), без computer-use-управления GUI — совместимо с Linux/Mac/Windows и с headless CI (Q16, Q133), не зависит от ограничений computer-use на Linux. **[Q150: только bpy-скрипты, headless, без GUI]**.
 
 - **FR-053**: Политика побочных сборок для других ОС в CI: **[Q147: нет; строго только Linux-сборка до отдельной вехи Windows-порта]**. Примечание: Proton/Steam-совместимость не расширяет возможности движка и не требуется для нативной Godot-сборки; ограничивающий фактор — интегрированная графика (Q9), а не ОС.
 

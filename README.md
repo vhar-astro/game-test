@@ -3,10 +3,13 @@
 An offline third-person exploration game for Linux. Follow crystal light through a floating
 forest, confront an ancient guardian and discover a path to another reality.
 
+**Current milestone:** board the explorer ship, fly between islands, land on clear terraces,
+and carry the ship through unlocked portals. Mouse controls work through the HUD.
+
 **First playable slice:** one prism puzzle, one robot, resonance artifact, key crystal,
 portal, ruins preview and station hub. Full development continues through reviewed milestones.
 
-[Run and controls](docs/QUICKSTART.md) · [Validation](docs/VALIDATION.md) · [Specification](specs/001-infinity-reality-game/spec.md)
+[Run and controls](docs/QUICKSTART.md) · [Ship milestone validation](docs/MILESTONE-2.md) · [First-slice validation](docs/VALIDATION.md) · [Specification](specs/001-infinity-reality-game/spec.md)
 
 ```bash
 ./tools/bootstrap_godot.sh

@@ -26,7 +26,7 @@ signal health_changed(value: float)
 @export_range(0.0, 0.2, 0.005) var camera_smoothing: float = 0.06
 @export var camera_yaw: float = 0.0
 @export var camera_pitch: float = deg_to_rad(-12.0)
-@export_range(1.0, 4.0, 0.1) var camera_pitch_limit_degrees: float = 70.0
+@export_range(1.0, 85.0, 0.1) var camera_pitch_limit_degrees: float = 70.0
 
 @export_group("Combat")
 @export var attack_telegraph: float = 0.12
@@ -38,7 +38,7 @@ signal health_changed(value: float)
 
 @onready var camera: Camera3D = %Camera
 @onready var _camera_rig: Node3D = %CameraRig
-@onready var _camera_yaw_node: Node3D = %CameraYaw
+@onready var _camera_pitch_node: Node3D = %CameraPitch
 @onready var _spring_arm: SpringArm3D = %SpringArm
 @onready var _visual: Node3D = %Visual
 
@@ -65,6 +65,12 @@ func _ready() -> void:
 	_play_animation(&"idle")
 
 
+func _process(_delta: float) -> void:
+	# Fade the avatar out when collision pushes the camera inside its head.
+	if _visual and camera:
+		_visual.visible = camera.global_position.distance_to(global_position + Vector3.UP * 1.2) > 1.1
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not input_enabled:
 		return
@@ -74,11 +80,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		_capture_mouse()
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		var motion: Vector2 = event.screen_relative
+		if motion.is_zero_approx():
+			motion = event.relative
 		var vertical_sign := -1.0 if invert_y else 1.0
 		set_view(
-			camera_yaw - event.screen_relative.x * mouse_sensitivity,
-			camera_pitch - event.screen_relative.y * mouse_sensitivity * vertical_sign
+			camera_yaw - motion.x * mouse_sensitivity,
+			camera_pitch - motion.y * mouse_sensitivity * vertical_sign
 		)
+		get_viewport().set_input_as_handled()
 
 
 func _physics_process(delta: float) -> void:
@@ -102,10 +112,14 @@ func set_view(yaw: float, pitch: float) -> void:
 	camera_yaw = yaw
 	var pitch_limit := deg_to_rad(camera_pitch_limit_degrees)
 	camera_pitch = clampf(pitch, -pitch_limit, pitch_limit)
-	if _camera_yaw_node:
-		_camera_yaw_node.rotation.y = camera_yaw
 	if _camera_rig:
-		_camera_rig.rotation.x = camera_pitch
+		_camera_rig.rotation = Vector3(0.0, camera_yaw, 0.0)
+	if _camera_pitch_node:
+		_camera_pitch_node.rotation = Vector3(camera_pitch, 0.0, 0.0)
+
+
+func reset_camera_follow() -> void:
+	if _camera_rig: _camera_rig.global_position = global_position + _camera_follow_offset
 
 
 func set_camera_fov(value: float) -> void:

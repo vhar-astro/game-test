@@ -1,0 +1,50 @@
+{
+  "VmHWM": "303044 kB",
+  "VmRSS": "303044 kB",
+  "engine": "4.7.2-stable (official)",
+  "executable": "/home/ruslan/projects/game-test/build/infinity-reality/infinity-reality.x86_64",
+  "gpu": "Intel(R) Arc(tm) Graphics (MTL)",
+  "renderer": "vulkan",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "scenes": {
+    "forest_flight": {
+      "frames": 2677,
+      "mean_fps": 223.071752191532,
+      "p99_frame_ms": 7.181,
+      "seconds": 12.000623,
+      "worst_frame_fps": 111.731843575419
+    },
+    "hub_flight": {
+      "frames": 2801,
+      "mean_fps": 233.385918071961,
+      "p99_frame_ms": 6.554,
+      "seconds": 12.001581,
+      "worst_frame_fps": 117.994100294985
+    },
+    "ruins_flight": {
+      "frames": 2666,
+      "mean_fps": 222.088510018516,
+      "p99_frame_ms": 7.392,
+      "seconds": 12.004223,
+      "worst_frame_fps": 83.0702774547267
+    }
+  },
+  "screenshots": [
+    "ship-boarding",
+    "flight-forest",
+    "flight-landing",
+    "landing-exit",
+    "observatory",
+    "flight-ru",
+    "flight-ruins",
+    "flight-hub"
+  ],
+  "staged_render_benchmark": true,
+  "transition_seconds": [
+    0.709,
+    0.847
+  ]
+}

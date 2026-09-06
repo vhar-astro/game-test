@@ -1,0 +1,52 @@
+Native Linux mouse validation
+=============================
+
+Environment: Godot 4.7.2, X11 driver forced on the local XWayland display, ctypes
+libX11/libXtst bindings. The host matches one exact, uniquely titled probe window,
+focuses that window, injects XTest events, then restores the original pointer/focus.
+
+Foot controls:
+
+    python3 tools/validate_mouse_host.py --project-root . --timeout 12
+
+    NATIVE_LOOK_OK yaw=-0.36 pitch=0.135
+    NATIVE_CLICK_OK attacks=1
+    NATIVE_ESCAPE_OK mode=pause cursor=0
+    NATIVE_RESUME_OK mode=explore cursor=2
+    NATIVE_MOUSE_VALIDATION_OK
+
+Ship controls:
+
+    python3 tools/validate_mouse_host.py --project-root . --flight --artifact artifacts/mouse_probe_flight.json --timeout 15
+
+    NATIVE_LOOK_OK controller=ship yaw=4.07859259796143 pitch=0.699
+    NATIVE_CLICK_OK controller=ship cursor=2
+    NATIVE_ESCAPE_OK mode=pause cursor=0
+    NATIVE_RESUME_OK mode=flight cursor=2
+    NATIVE_MOUSE_VALIDATION_OK
+
+Causal HUD regression:
+
+    python3 tools/validate_mouse_host.py --project-root . --screen-filter stop --expect-look-blocked --artifact artifacts/mouse_probe_stop.json --timeout 12
+
+    CAUSAL_STOP yaw_before=0.0 yaw_after=0.0 pitch_after=0.0 delta=0.0
+    CAUSAL_STOP_BLOCKED_OK
+
+The STOP run reproduces the former full-screen HUD interception. The default probe
+sets the gameplay HUD to pointer-transparent IGNORE and the two host runs above
+observe real OS events reaching the foot and ship camera handlers.
+
+Raw probe snapshots:
+
+    artifacts/mouse_probe.json
+    artifacts/mouse_probe_flight.json
+    artifacts/mouse_probe_stop.json
+    docs/validation/mouse_probe.json
+    docs/validation/mouse_probe_flight.json
+    docs/validation/mouse_probe_stop.json
+
+Related validation logs:
+
+    artifacts/final-m2-check.log
+    artifacts/final-m2-export.log
+    artifacts/capture-ship-validation.log

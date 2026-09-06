@@ -111,3 +111,24 @@ ROBOT_DEFEATED,The sentinel falls silent.,Страж умолкает.
 ARTIFACT_FOUND,Resonance is now bound to [1].,Резонанс теперь доступен на клавише [1].
 CRYSTAL_MEMORY,The crystal reveals coordinates to the ruins.,Кристалл открывает координаты руин.
 RUINS_PREVIEW,Coordinates confirmed. A silent world unfolds.,Координаты подтверждены. Перед вами безмолвный мир.
+SHIP_BOARD,[E] Board ship,[E] Сесть в корабль
+SHIP_BOARDING,Boarding · engines online,Посадка в корабль · двигатели включены
+SHIP_LAND,[E] Land and disembark,[E] Приземлиться и выйти
+FLIGHT_CONTROLS,"WASD / arrows · Move   Mouse · Steer
+Space / Ctrl · Rise / descend   E · Land   Esc · Pause","WASD / стрелки · Движение   Мышь · Курс
+Пробел / Ctrl · Вверх / вниз   E · Посадка   Esc · Пауза"
+FLIGHT_STATUS,"EXPLORER · Flight
+Release movement to hover","ИССЛЕДОВАТЕЛЬ · Полёт
+Отпустите клавиши для зависания"
+FLIGHT_OBJECTIVE,Explore the floating observatory to the west,Исследуйте парящую обсерваторию на западе
+FLIGHT_OBSERVATORY,OBSERVATORY · LAND ON THE OPEN TERRACE,ОБСЕРВАТОРИЯ · ПОСАДКА НА СВОБОДНОЙ ТЕРРАСЕ
+FLIGHT_PORTAL,[E] Fly through portal,[E] Пролететь через портал
+FLIGHT_BOUNDARY_RETURN,Reality fades here. Returned above your last landing.,Здесь реальность распадается. Возврат к месту посадки.
+TAKEOFF_NOT_LANDED,The ship is already airborne.,Корабль уже в воздухе.
+TAKEOFF_BLOCKED,Clear the space above the ship before takeoff.,Для взлёта нужно свободное пространство над кораблём.
+LANDING_VOID,Find a wide terrace below · Space / Ctrl adjusts altitude,Найдите широкую террасу внизу · Пробел / Ctrl — высота
+LANDING_SLOPE,Landing needs a flatter surface.,Для посадки нужна более ровная поверхность.
+LANDING_UNLEVEL,Move fully over one level terrace.,Разместите корабль целиком над одной ровной террасой.
+LANDING_BLOCKED,Landing area occupied · move clear of obstacles,Место посадки занято · отлетите от препятствий
+LANDING_DESCENT_BLOCKED,An obstacle blocks the descent.,Препятствие мешает снижению.
+LANDING_EXIT_BLOCKED,No safe space to disembark · move farther onto the terrace,Нет безопасного места для выхода · сместитесь вглубь террасы

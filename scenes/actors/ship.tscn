@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/ship.gd" id="1_ship"]
+[ext_resource type="PackedScene" path="res://assets/models/ship.glb" id="2_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape_ship"]
+size = Vector3(6.6, 3.2, 6.4)
+
+[node name="Ship" type="CharacterBody3D"]
+collision_layer = 16
+collision_mask = 5
+script = ExtResource("1_ship")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.6, 0)
+shape = SubResource("BoxShape_ship")
+
+[node name="Visual" type="Node3D" parent="."]
+unique_name_in_owner = true
+rotation = Vector3(0, 3.141593, 0)
+scale = Vector3(1.25, 1.25, 1.25)
+
+[node name="Model" parent="Visual" instance=ExtResource("2_model")]
+
+[node name="CameraRig" type="Node3D" parent="."]
+position = Vector3(0, 3.3, 0)
+
+[node name="CameraPitch" type="Node3D" parent="CameraRig"]
+unique_name_in_owner = true
+
+[node name="SpringArm" type="SpringArm3D" parent="CameraRig/CameraPitch"]
+unique_name_in_owner = true
+spring_length = 12.0
+collision_mask = 25
+margin = 0.15
+
+[node name="Camera" type="Camera3D" parent="CameraRig/CameraPitch/SpringArm"]
+unique_name_in_owner = true
+fov = 65.0

@@ -33,7 +33,8 @@ warm-up while the camera sweeps. Source data: [benchmark.json](benchmark.json).
 | Station hub | 165.37 | 23.585 ms | 38.62 |
 
 Portal transitions: 0.835 s, 0.833 s.
-Peak resident memory: not reported (under the 4 GB budget).
+Peak resident memory: not recorded in this milestone-1 report. The milestone-2 report
+contains a measured exported-build peak.
 Linux package: approximately 29 MB compressed; executable approximately 72 MB.
 
 This is a staged rendering benchmark on the named machine. It excludes initial import,
