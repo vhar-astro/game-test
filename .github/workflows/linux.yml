@@ -18,7 +18,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Bootstrap pinned Godot
-        run: tools/bootstrap_godot.sh
+        run: |
+          tools/test_bootstrap_godot.sh
+          mkdir -p artifacts
+          set -o pipefail
+          tools/bootstrap_godot.sh 2>&1 | tee artifacts/bootstrap.log
 
       - name: Import project and run headless tests
         env:

@@ -46,15 +46,49 @@ download_verified() {
 	local part="${destination}.part"
 
 	if [[ -f "$destination" ]]; then
-		if verify_sha256 "$destination" "$expected" 2>/dev/null; then
+		# verify_sha256 is fail-closed and calls die on mismatch. Isolate that
+		# exit so a corrupt cache is removed and can be downloaded again.
+		if (verify_sha256 "$destination" "$expected" 2>/dev/null); then
 			return
 		fi
 		rm -f -- "$destination"
 	fi
-	rm -f -- "$part"
 	printf 'Downloading %s\n' "${destination##*/}"
-	curl --fail --location --retry 4 --retry-delay 2 --connect-timeout 30 --output "$part" "$url"
-	verify_sha256 "$part" "$expected"
+	local attempt=1
+	local curl_status=0
+	while (( attempt <= 4 )); do
+		# Keep an unverified partial between attempts. HTTP/1.1 avoids the
+		# stream cancellation seen on the large export-template transfer, while
+		# -C - resumes it when the server supports ranges.
+		local resume_args=()
+		if [[ -s "$part" ]]; then
+			resume_args=(--continue-at -)
+		fi
+		if curl --fail --location --http1.1 --retry 1 --retry-all-errors --retry-delay 2 \
+			--retry-max-time 60 --connect-timeout 30 --max-time 300 \
+			"${resume_args[@]}" --output "$part" "$url"; then
+			curl_status=0
+			break
+		else
+			curl_status=$?
+		fi
+		# curl 33 means the server rejected the requested Range. Discard only
+		# the unverified partial and retry the same pinned URL from byte zero.
+		if (( curl_status == 33 )) && [[ -f "$part" ]]; then
+			rm -f -- "$part"
+		fi
+		if (( attempt == 4 )); then
+			die "download failed for ${destination##*/} after ${attempt} attempts (curl ${curl_status})"
+		fi
+		printf 'Download attempt %d failed for %s (curl %d); retrying\n' "$attempt" "${destination##*/}" "$curl_status" >&2
+		sleep 2
+		attempt=$((attempt + 1))
+		done
+	[[ "$curl_status" == 0 ]] || die "download failed for ${destination##*/} (curl ${curl_status})"
+	if ! verify_sha256 "$part" "$expected"; then
+		# Keep the unverified partial for a later retry, but never promote it.
+		return 1
+	fi
 	mv -- "$part" "$destination"
 }
 
