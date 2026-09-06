@@ -1,0 +1,70 @@
+name: Linux
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Bootstrap pinned Godot
+        run: tools/bootstrap_godot.sh
+
+      - name: Import project and run headless tests
+        env:
+          GODOT_BIN: ${{ github.workspace }}/.tools/godot/4.7.2/godot
+          GODOT_DATA_HOME: ${{ github.workspace }}/.tools/godot/4.7.2/data
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          tools/check.sh 2>&1 | tee artifacts/check.log
+
+      - name: Export and package Linux release
+        env:
+          GODOT_BIN: ${{ github.workspace }}/.tools/godot/4.7.2/godot
+          GODOT_DATA_HOME: ${{ github.workspace }}/.tools/godot/4.7.2/data
+          XDG_DATA_HOME: ${{ github.workspace }}/.tools/godot/4.7.2/data
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          tools/export.sh 2>&1 | tee artifacts/export.log
+
+      - name: Smoke test packaged Linux release
+        env:
+          GODOT_DATA_HOME: ${{ runner.temp }}/infinity-reality-smoke/data
+          XDG_DATA_HOME: ${{ runner.temp }}/infinity-reality-smoke/data
+          XDG_CONFIG_HOME: ${{ runner.temp }}/infinity-reality-smoke/config
+          XDG_CACHE_HOME: ${{ runner.temp }}/infinity-reality-smoke/cache
+        run: |
+          set -o pipefail
+          timeout --foreground 30s build/infinity-reality/infinity-reality.x86_64 --headless -- --smoke-test 2>&1 | tee artifacts/exported-smoke.log
+          grep -q '^EXPORT_SMOKE_OK ' artifacts/exported-smoke.log
+          if grep -Eq '(^|[[:space:]])(SCRIPT ERROR|ERROR:)' artifacts/exported-smoke.log; then
+            echo 'Packaged smoke test reported SCRIPT ERROR/ERROR' >&2
+            exit 1
+          fi
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: infinity-reality-linux
+          path: build/infinity-reality-linux-x86_64.tar.gz
+          if-no-files-found: error
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: infinity-reality-validation-logs
+          path: artifacts/*.log
+          if-no-files-found: ignore

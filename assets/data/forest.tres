@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DimensionDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/dimension_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = "forest"
+display_name = "DIMENSION_FOREST"
+scene_path = "res://scenes/forest.tscn"
+gravity_scale = 1.0
+order = 1

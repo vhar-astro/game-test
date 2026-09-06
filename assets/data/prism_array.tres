@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PuzzleDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/puzzle_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = "forest_prism_array"
+dimension_id = "forest"
+target_orientations = Array[int]([0,1,0])
+hint_delay_seconds = 90.0
+hint_steps = Array[String](["HINT_1","HINT_2","HINT_3"])
