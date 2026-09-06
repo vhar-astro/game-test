@@ -1,4 +1,3 @@
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Read `specs/001-infinity-reality-game/plan.md` and `docs/QUICKSTART.md` for project architecture, toolchain and validation.
 <!-- SPECKIT END -->

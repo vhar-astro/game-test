@@ -1,0 +1,113 @@
+keys,en,ru
+GAME_TITLE,Infinity Reality,Бесконечность реальности
+MAIN_TAGLINE,Follow the signal. Understand the impossible.,Следуй за сигналом. Пойми невозможное.
+MENU_CONTINUE,Continue,Продолжить
+MENU_NEW_GAME,New Game,Новая игра
+MENU_SETTINGS,Settings,Настройки
+MENU_EXIT,Exit,Выйти
+PROFILE_TITLE,Profile,Профиль
+PROFILE_EMPTY,Empty,Пусто
+PROFILE_UNAVAILABLE,Save unavailable,Сохранение недоступно
+PROFILE_RECOVERED,Recovered from last good save,Восстановлено из резервной копии
+PROFILE_PROGRESS,%s  ·  Artifacts %d  ·  Crystals %d,%s  ·  Артефакты %d  ·  Кристаллы %d
+SCENE_FOREST,Crystal Forest,Кристальный лес
+SCENE_RUINS,Ancient Ruins,Древние руины
+SCENE_HUB,Station Hub,Станция-хаб
+PAUSE_TITLE,Paused,Пауза
+PAUSE_RESUME,Resume,Продолжить
+PAUSE_COLLECTION,Collection,Коллекция
+PAUSE_HUB,Return to Hub,Вернуться в хаб
+PAUSE_QUIT_MENU,Quit to Main Menu,В главное меню
+COMMON_BACK,Back,Назад
+COMMON_ON,On,Вкл.
+COMMON_OFF,Off,Выкл.
+HUD_HEALTH,SUIT INTEGRITY,ЦЕЛОСТНОСТЬ СКАФАНДРА
+HUD_COUNTS,Crystals %d  ·  Artifacts %d  ·  Depth %d,Кристаллы %d  ·  Артефакты %d  ·  Глубина %d
+HUD_CONTROLS,WASD / arrows · mouse · Space jump · Shift run · E interact · LMB blade · Esc pause,WASD / стрелки · мышь · Space прыжок · Shift бег · E действие · ЛКМ клинок · Esc пауза
+COLLECTION_TITLE,Collection,Коллекция
+COLLECTION_ARTIFACTS,ARTIFACTS,АРТЕФАКТЫ
+COLLECTION_CRYSTALS,CRYSTALS,КРИСТАЛЛЫ
+COLLECTION_MEMORIES,MEMORY SHARDS,ОСКОЛКИ ВОСПОМИНАНИЙ
+COLLECTION_EMPTY,Nothing discovered yet,Пока ничего не найдено
+COLLECTION_OWNED,Discovered,Найдено
+COLLECTION_LOCKED,Unknown,Неизвестно
+MEMORY_FOREST_SHARD,Forest echo: The first arrival,Эхо леса: Первое прибытие
+MEMORY_UNKNOWN,Uncatalogued memory,Неизученное воспоминание
+ARTIFACT_PHASE_GAUNTLET,Resonance Gauntlet,Резонансная перчатка
+CRYSTAL_FOREST_MEMORY,Forest Memory Crystal,Кристалл памяти леса
+SETTINGS_TITLE,Settings,Настройки
+SETTINGS_FOV,Field of view,Угол обзора
+SETTINGS_SENSITIVITY,Mouse sensitivity,Чувствительность мыши
+SETTINGS_INVERT_Y,Invert vertical look,Инверсия по вертикали
+SETTINGS_INTERACTION,Hold E to interact,Удерживать E для действия
+SETTINGS_LAYOUT,Movement layout,Раскладка движения
+SETTINGS_WASD,WASD,WASD
+SETTINGS_ARROWS,Arrow keys,Стрелки
+SETTINGS_LANGUAGE,Language,Язык
+LANGUAGE_EN,English,Английский
+LANGUAGE_RU,Russian,Русский
+SETTINGS_MASTER,Master volume,Общая громкость
+SETTINGS_MUSIC,Music volume,Громкость музыки
+SETTINGS_EFFECTS,Effects volume,Громкость эффектов
+SETTINGS_FULLSCREEN,Fullscreen,Полный экран
+SETTINGS_QUALITY,Graphics quality,Качество графики
+QUALITY_LOW,Low,Низкое
+QUALITY_MEDIUM,Medium,Среднее
+QUALITY_HIGH,High,Высокое
+PUZZLE_TITLE,Prism Array,Система призм
+PUZZLE_INSTRUCTION,Rotate each prism until every beam reaches the receiver.,Поверни призмы так чтобы все лучи достигли приёмника.
+PUZZLE_PRISM_1,Prism I,Призма I
+PUZZLE_PRISM_2,Prism II,Призма II
+PUZZLE_PRISM_3,Prism III,Призма III
+DIRECTION_0,North,Север
+DIRECTION_1,East,Восток
+DIRECTION_2,South,Юг
+DIRECTION_3,West,Запад
+PUZZLE_RESET,Reset Array,Сбросить систему
+PUZZLE_HINT,Reveal Hint,Показать подсказку
+PUZZLE_CLOSE,Leave Mechanism,Отойти от механизма
+PUZZLE_HINT_WAIT,Study how the beams respond.,Изучи как реагируют лучи.
+PUZZLE_HINT_1,Every beam must reach the receiver.,Все лучи должны достигнуть приёмника.
+PUZZLE_HINT_2,Prism I faces north. Prism II faces east. Prism III faces north.,Призма I смотрит на север. Призма II — на восток. Призма III — на север.
+PUZZLE_HINT_3,Exact solution: North · East · North. Reset the array if needed.,Точное решение: Север · Восток · Север. При необходимости сбрось систему.
+ABILITY_PHASE,Resonance,Резонанс
+ABILITY_READY,Ready,Готово
+ABILITY_LOCKED,Locked,Закрыто
+ABILITY_COOLDOWN,%.1f s,%.1f с
+TRANSITION_LOADING,STABILIZING REALITY,СТАБИЛИЗАЦИЯ РЕАЛЬНОСТИ
+ARRIVAL,The signal is close. Follow the light.,Сигнал близко. Следуй за светом.
+BOUNDARY_RETURN,Reality folds you back to stable ground.,Реальность возвращает тебя на устойчивую поверхность.
+CHECKPOINT_RESTORE,Restoring the last stable moment…,Восстанавливается последний устойчивый момент…
+CONFIRM_NEW_GAME,This profile already contains progress. Begin again?,В этом профиле уже есть прогресс. Начать заново?
+NEW_GAME,New Game,Новая игра
+SAVE_FUTURE,This save was created by a newer game version.,Это сохранение создано более новой версией игры.
+SAVE_UNAVAILABLE,The save cannot be loaded.,Не удалось загрузить сохранение.
+SAVE_RECOVERED,Progress restored from the last good backup.,Прогресс восстановлен из резервной копии.
+SAVE_FAILED,Progress could not be saved.,Не удалось сохранить прогресс.
+INTERACT_PRISM,[E] Examine prism,[E] Осмотреть призму
+INTERACT_RESET,[E] Reset prism array,[E] Сбросить систему призм
+INTERACT_ARTIFACT,[E] Collect Resonance Gauntlet,[E] Забрать резонансную перчатку
+INTERACT_CRYSTAL,[E] Collect memory crystal,[E] Забрать кристалл памяти
+INTERACT_RESONANCE,[1] Use Resonance,[1] Использовать резонанс
+INTERACT_PORTAL,[E] Enter the portal,[E] Войти в портал
+INTERACT_SHARD,[E] Collect memory shard,[E] Забрать осколок памяти
+INTERACT_HUB,[E] Return to the station,[E] Вернуться на станцию
+INTERACT_FOREST,[E] Travel to the Crystal Forest,[E] Отправиться в Кристальный лес
+INTERACT_RUINS,[E] Travel to the Ancient Ruins,[E] Отправиться в Древние руины
+LOCKED,A resonance pattern is missing.,Не хватает резонансного узора.
+PORTAL_LOCKED,The portal has no destination coordinates.,У портала нет координат назначения.
+LOCK_OPEN,The resonant lock answers.,Резонансный замок откликается.
+PUZZLE_COMPLETE,The prism array is already aligned.,Система призм уже настроена.
+SHARD_MEMORY,A fragment remembers the first arrival.,Осколок помнит первое прибытие.
+OBJECTIVE_PUZZLE,Align the prism array,Настрой систему призм
+OBJECTIVE_ROBOT,Reach the signal beyond the sentinel,Доберись до сигнала за стражем
+OBJECTIVE_ARTIFACT,Recover the Resonance Gauntlet,Забери резонансную перчатку
+OBJECTIVE_LOCK,Open the resonant lock with [1],Открой резонансный замок клавишей [1]
+OBJECTIVE_CRYSTAL,Claim the memory crystal,Забери кристалл памяти
+OBJECTIVE_PORTAL,Carry the coordinates into the portal,Отнеси координаты к порталу
+OBJECTIVE_HUB,Choose a known reality,Выбери известную реальность
+OBJECTIVE_RUINS,Explore the ruins · return through the station portal,Исследуйте руины · вернитесь через портал станции
+ROBOT_DEFEATED,The sentinel falls silent.,Страж умолкает.
+ARTIFACT_FOUND,Resonance is now bound to [1].,Резонанс теперь доступен на клавише [1].
+CRYSTAL_MEMORY,The crystal reveals coordinates to the ruins.,Кристалл открывает координаты руин.
+RUINS_PREVIEW,Coordinates confirmed. A silent world unfolds.,Координаты подтверждены. Перед вами безмолвный мир.

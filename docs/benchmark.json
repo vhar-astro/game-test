@@ -1,0 +1,49 @@
+{
+  "engine": "4.7.2-stable (official)",
+  "executable": "/home/ruslan/projects/game-test/build/infinity-reality/infinity-reality.x86_64",
+  "gpu": "Intel(R) Arc(tm) Graphics (MTL)",
+  "renderer": "vulkan",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "scenes": {
+    "forest": {
+      "engine_memory_mb": 0.0,
+      "frames": 1867,
+      "mean_fps": 155.570783956761,
+      "p95_frame_ms": 10.292,
+      "p99_frame_ms": 21.573,
+      "seconds": 12.000968,
+      "worst_frame_fps": 37.3106484590702
+    },
+    "hub": {
+      "engine_memory_mb": 0.0,
+      "frames": 1985,
+      "mean_fps": 165.372057554141,
+      "p95_frame_ms": 9.648,
+      "p99_frame_ms": 23.585,
+      "seconds": 12.003237,
+      "worst_frame_fps": 38.6174937246573
+    },
+    "ruins": {
+      "engine_memory_mb": 0.0,
+      "frames": 1987,
+      "mean_fps": 165.514038122706,
+      "p95_frame_ms": 10.019,
+      "p99_frame_ms": 22.837,
+      "seconds": 12.005024,
+      "worst_frame_fps": 37.6789751318764
+    }
+  },
+  "staged_render_benchmark": true,
+  "transition_seconds": [
+    0.835,
+    0.833
+  ],
+  "vsync": false,
+  "window_size": [
+    1920,
+    1200
+  ]
+}

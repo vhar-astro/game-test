@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/sentinel.gd" id="1_sentinel"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_sentinel"]
+radius = 0.62
+height = 2.4
+
+[node name="Sentinel" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_sentinel")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.2, 0)
+shape = SubResource("CapsuleShape_sentinel")
+
+[node name="Visual" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="NavigationAgent" type="NavigationAgent3D" parent="."]
+unique_name_in_owner = true
+path_desired_distance = 0.45
+target_desired_distance = 0.8
+radius = 0.62
+height = 2.4
+
+[node name="SightRay" type="RayCast3D" parent="."]
+unique_name_in_owner = true
+position = Vector3(0, 1.85, 0)
+enabled = false
+collision_mask = 3

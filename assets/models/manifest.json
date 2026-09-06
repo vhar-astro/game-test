@@ -1,0 +1,86 @@
+{
+  "explorer": {
+    "triangles": 3772,
+    "budget": 30000,
+    "animations": [
+      "attack",
+      "death",
+      "idle",
+      "interact",
+      "run",
+      "walk"
+    ]
+  },
+  "sentinel": {
+    "triangles": 3744,
+    "budget": 10000,
+    "animations": [
+      "attack.001",
+      "death.001",
+      "idle.001",
+      "interact.001",
+      "run.001",
+      "walk.001"
+    ]
+  },
+  "ship": {
+    "triangles": 2488,
+    "budget": 30000,
+    "animations": []
+  },
+  "prism": {
+    "triangles": 1198,
+    "budget": 10000,
+    "animations": []
+  },
+  "crystal": {
+    "triangles": 634,
+    "budget": 10000,
+    "animations": []
+  },
+  "artifact": {
+    "triangles": 1064,
+    "budget": 10000,
+    "animations": []
+  },
+  "portal": {
+    "triangles": 2988,
+    "budget": 10000,
+    "animations": []
+  },
+  "crystal_tree": {
+    "triangles": 452,
+    "budget": 10000,
+    "animations": []
+  },
+  "island": {
+    "triangles": 68,
+    "budget": 10000,
+    "animations": []
+  },
+  "tile": {
+    "triangles": 216,
+    "budget": 10000,
+    "animations": []
+  },
+  "column": {
+    "triangles": 540,
+    "budget": 10000,
+    "animations": []
+  },
+  "receiver": {
+    "triangles": 868,
+    "budget": 10000,
+    "animations": []
+  },
+  "pedestal": {
+    "triangles": 948,
+    "budget": 10000,
+    "animations": []
+  },
+  "armillary": {
+    "triangles": 1562,
+    "budget": 10000,
+    "animations": []
+  }
+}

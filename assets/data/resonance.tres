@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/ability_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = "resonance"
+display_name = "ABILITY_RESONANCE"
+description = "RESONANCE_DESCRIPTION"
+source_artifact_id = "forest_phase_gauntlet"
+cooldown_seconds = 6.0
+input_slot = 1
