@@ -18,6 +18,9 @@ the first milestone's protection. Mid-flight continuation restores the ship hove
 
 ## Validation
 
+[PR #2](https://github.com/vhar-astro/game-test/pull/2) is the milestone review gate.
+Its Actions checks import, test, export and smoke the downloadable Linux artifact.
+
 - Godot 4.7.2 import, actor/world scene smoke tests, original slice traversal, combat,
   v1/v2 persistence and flight integration: `ALL_TESTS_OK`; `Headless checks passed`.
 - Real OS input on X11: ground look, blade click, Escape and clicking Resume pass;

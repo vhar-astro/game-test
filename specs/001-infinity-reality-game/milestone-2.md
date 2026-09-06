@@ -24,7 +24,9 @@ The next authored dimension remains a separate review gate.
       recovery pose. Migrate validated schema 1 in memory; keep active/backup safeguards.
 - [x] Add ship physics/integration tests and native OS mouse regression tooling.
 - [x] Complete final headless checks, native Linux export/rendered inspection and 1080p measurement.
-- [ ] Commit, publish a PR with screenshots and evidence, verify Actions, leave review open.
+- [x] Commit and publish [PR #2](https://github.com/vhar-astro/game-test/pull/2) with screenshots
+      and evidence; leave it open for milestone review. GitHub Actions results and downloadable
+      Linux artifacts are attached to the PR checks.
 
 ## Team and ownership
 
