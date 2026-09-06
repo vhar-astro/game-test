@@ -30,6 +30,8 @@ func apply_volumes(settings: Dictionary) -> void:
 	effects_volume=float(settings.effects)
 
 func _process(delta: float) -> void:
+	for loop in loops:
+		loop.volume_db = -16 + linear_to_db(maxf(effects_volume, 0.0001))
 	for id: String in layers:
 		var player: AudioStreamPlayer=layers[id]
 		var target:=music_volume*(0.55 if id=="explore" else 0.75) if id==context or id=="explore" else 0.0001
@@ -48,7 +50,7 @@ func effect(id: String, at := Vector3.ZERO) -> void:
 	sound.finished.connect(sound.queue_free)
 	sound.play()
 
-func loop_spatial(id: String, at: Vector3) -> void:
+func loop_spatial(id: String, at: Vector3) -> AudioStreamPlayer3D:
 	var sound:=AudioStreamPlayer3D.new()
 	var stream: AudioStreamWAV=load("res://assets/audio/"+id+".wav").duplicate()
 	stream.loop_mode=AudioStreamWAV.LOOP_FORWARD
@@ -61,6 +63,7 @@ func loop_spatial(id: String, at: Vector3) -> void:
 	add_child(sound)
 	sound.play()
 	loops.append(sound)
+	return sound
 
 func clear_spatial() -> void:
 	for loop in loops:

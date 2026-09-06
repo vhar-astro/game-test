@@ -3,7 +3,8 @@ extends RefCounted
 
 const GameSessionScript = preload("res://scripts/data/game_session.gd")
 
-const SCHEMA_VERSION := 1
+const SCHEMA_VERSION := 2
+const LEGACY_SCHEMA_VERSION := 1
 const PROFILE_COUNT := 3
 const DEFAULT_ROOT_DIRECTORY := "user://saves"
 
@@ -96,27 +97,27 @@ func can_write_profile(index: int) -> Dictionary:
 
 func load_profile(index: int) -> Dictionary:
 	if not _valid_profile_index(index):
-		return _load_result(false, ERROR_INVALID_PROFILE, false, 0, {})
+		return _load_result(false, ERROR_INVALID_PROFILE, false, false, 0, {})
 
 	var paths := _profile_paths(index)
 	var active := _inspect_file(paths.active)
 	if active.ok:
-		return _load_result(true, ERROR_NONE, false, active.version, active.data)
+		return _load_result(true, ERROR_NONE, false, active.migrated, active.version, active.data)
 	if active.error == ERROR_UNSUPPORTED_VERSION:
-		return _load_result(false, active.error, false, active.version, {})
+		return _load_result(false, active.error, false, false, active.version, {})
 
 	var backup := _inspect_file(paths.backup)
 	if backup.ok:
-		return _load_result(true, active.error, true, backup.version, backup.data)
+		return _load_result(true, active.error, true, backup.migrated, backup.version, backup.data)
 	if backup.error == ERROR_UNSUPPORTED_VERSION:
-		return _load_result(false, backup.error, false, backup.version, {})
+		return _load_result(false, backup.error, false, false, backup.version, {})
 
 	var error: String = active.error
 	if error == ERROR_MISSING:
 		error = backup.error
 	if error == ERROR_MISSING:
-		return _load_result(false, ERROR_MISSING, false, 0, {})
-	return _load_result(false, error, false, int(active.version), {})
+		return _load_result(false, ERROR_MISSING, false, false, 0, {})
+	return _load_result(false, error, false, false, int(active.version), {})
 
 
 func profile_summary(index: int) -> Dictionary:
@@ -127,6 +128,7 @@ func profile_summary(index: int) -> Dictionary:
 			"ok": false,
 			"error": loaded.error,
 			"recovered": loaded.recovered,
+			"migrated": loaded.migrated,
 			"version": loaded.version,
 		}
 	var resume: Dictionary = loaded.data.resume
@@ -135,6 +137,7 @@ func profile_summary(index: int) -> Dictionary:
 		"ok": true,
 		"error": loaded.error,
 		"recovered": loaded.recovered,
+		"migrated": loaded.migrated,
 		"version": loaded.version,
 		"scene_id": resume.scene_id,
 		"artifact_collected": resume.flags.artifact_collected,
@@ -144,35 +147,40 @@ func profile_summary(index: int) -> Dictionary:
 
 func _inspect_file(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
-		return {"ok": false, "error": ERROR_MISSING, "version": 0, "data": {}}
+		return {"ok": false, "error": ERROR_MISSING, "version": 0, "migrated": false, "data": {}}
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		return {"ok": false, "error": ERROR_IO, "version": 0, "data": {}}
+		return {"ok": false, "error": ERROR_IO, "version": 0, "migrated": false, "data": {}}
 	var parser := JSON.new()
 	if parser.parse(file.get_as_text()) != OK:
-		return {"ok": false, "error": ERROR_CORRUPT, "version": 0, "data": {}}
+		return {"ok": false, "error": ERROR_CORRUPT, "version": 0, "migrated": false, "data": {}}
 	var envelope: Variant = parser.data
 	if typeof(envelope) != TYPE_DICTIONARY:
-		return {"ok": false, "error": ERROR_INVALID, "version": 0, "data": {}}
+		return {"ok": false, "error": ERROR_INVALID, "version": 0, "migrated": false, "data": {}}
 
 	var version: Variant = _read_schema_version(envelope.get("version"))
 	if version == null:
-		return {"ok": false, "error": ERROR_INVALID, "version": 0, "data": {}}
+		return {"ok": false, "error": ERROR_INVALID, "version": 0, "migrated": false, "data": {}}
 	if version > SCHEMA_VERSION:
-		return {"ok": false, "error": ERROR_UNSUPPORTED_VERSION, "version": version, "data": {}}
-	if version != SCHEMA_VERSION:
-		return {"ok": false, "error": ERROR_UNSUPPORTED_VERSION, "version": version, "data": {}}
+		return {"ok": false, "error": ERROR_UNSUPPORTED_VERSION, "version": version, "migrated": false, "data": {}}
+	if version != SCHEMA_VERSION and version != LEGACY_SCHEMA_VERSION:
+		return {"ok": false, "error": ERROR_UNSUPPORTED_VERSION, "version": version, "migrated": false, "data": {}}
 	if not _has_exact_keys(envelope, ["version", "resume", "checkpoint"]):
-		return {"ok": false, "error": ERROR_INVALID, "version": version, "data": {}}
+		return {"ok": false, "error": ERROR_INVALID, "version": version, "migrated": false, "data": {}}
 
 	var resume: Variant = envelope.resume
 	var checkpoint: Variant = envelope.checkpoint
+	var migrated: bool = version == LEGACY_SCHEMA_VERSION
+	if migrated:
+		resume = GameSessionScript.migrate_v1_snapshot(resume)
+		checkpoint = GameSessionScript.migrate_v1_snapshot(checkpoint)
 	if not GameSessionScript.is_valid_snapshot(resume) or not GameSessionScript.is_valid_snapshot(checkpoint):
-		return {"ok": false, "error": ERROR_INVALID, "version": version, "data": {}}
+		return {"ok": false, "error": ERROR_INVALID, "version": version, "migrated": false, "data": {}}
 	return {
 		"ok": true,
 		"error": ERROR_NONE,
 		"version": version,
+		"migrated": migrated,
 		"data": {"resume": resume.duplicate(true), "checkpoint": checkpoint.duplicate(true)},
 	}
 
@@ -215,11 +223,19 @@ static func _has_exact_keys(data: Dictionary, expected: Array) -> bool:
 	return true
 
 
-static func _load_result(ok: bool, error: String, recovered: bool, version: int, data: Dictionary) -> Dictionary:
+static func _load_result(
+	ok: bool,
+	error: String,
+	recovered: bool,
+	migrated: bool,
+	version: int,
+	data: Dictionary
+) -> Dictionary:
 	return {
 		"ok": ok,
 		"error": error,
 		"recovered": recovered,
+		"migrated": migrated,
 		"version": version,
 		"data": data,
 	}

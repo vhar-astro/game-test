@@ -40,6 +40,7 @@ var _hud_counts: Label
 var _hud_objective: Label
 var _hud_prompt: Label
 var _hud_ability: Label
+var _hud_controls: Label
 
 
 func _ready() -> void:
@@ -159,10 +160,12 @@ func show_hud() -> void:
 	controls_panel.offset_right = -28.0
 	controls_panel.offset_bottom = -28.0
 	var controls := _label("HUD_CONTROLS", 18, TEXT, HORIZONTAL_ALIGNMENT_RIGHT)
+	_hud_controls = controls
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	controls.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	controls_panel.add_child(controls)
 	_screen_root.add_child(controls_panel)
+	_ignore_pointer_tree(_screen_root)
 	_apply_cached_hud()
 
 
@@ -354,6 +357,9 @@ func _ensure_built() -> void:
 
 
 func _clear_screen(transparent := false) -> void:
+	# A transparent full-screen Control still intercepts mouse events by default.
+	# Gameplay overlays must pass them through to the active camera controller.
+	_screen_root.mouse_filter = Control.MOUSE_FILTER_IGNORE if transparent else Control.MOUSE_FILTER_STOP
 	for child in _screen_root.get_children():
 		_screen_root.remove_child(child)
 		child.queue_free()
@@ -362,6 +368,13 @@ func _clear_screen(transparent := false) -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE if transparent else Control.MOUSE_FILTER_STOP
 	_screen_root.add_child(background)
+
+
+func _ignore_pointer_tree(node: Node) -> void:
+	if node is Control:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_ignore_pointer_tree(child)
 
 
 func _centered_layout(width: float) -> VBoxContainer:
@@ -591,6 +604,10 @@ func _apply_cached_hud() -> void:
 		ability_state = tr("ABILITY_LOCKED")
 	elif _cached_hud.cooldown > 0.0:
 		ability_state = tr("ABILITY_COOLDOWN") % _cached_hud.cooldown
+	_hud_controls.text = tr("FLIGHT_CONTROLS") if session.movement_mode == GameSession.MOVEMENT_SHIP else tr("HUD_CONTROLS")
+	if session.movement_mode == GameSession.MOVEMENT_SHIP:
+		_hud_ability.text = tr("FLIGHT_STATUS")
+		return
 	_hud_ability.text = "[1] %s · %s\n[2] %s  [3] %s  [4] %s" % [tr("ABILITY_PHASE"), ability_state, tr("ABILITY_LOCKED"), tr("ABILITY_LOCKED"), tr("ABILITY_LOCKED")]
 
 

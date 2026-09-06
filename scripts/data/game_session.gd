@@ -18,6 +18,16 @@ const ARTIFACT_ID := "forest_phase_gauntlet"
 const LOCK_ID := "forest_resonant_lock"
 const CRYSTAL_ID := "forest_memory_crystal"
 const MEMORY_SHARD_ID := "forest_memory_shard_01"
+const FLIGHT_MEMORY_SHARD_ID := "forest_flight_memory_01"
+
+const MOVEMENT_ON_FOOT := "on_foot"
+const MOVEMENT_SHIP := "ship"
+const VALID_MOVEMENT_MODES := [MOVEMENT_ON_FOOT, MOVEMENT_SHIP]
+
+const DEFAULT_SHIP_SCENE_ID := SCENE_FOREST
+const DEFAULT_SHIP_POSITION := Vector3(-5.6, 0.08, 14.0)
+const DEFAULT_SHIP_YAW := PI - 0.35
+const DEFAULT_SHIP_ROTATION := Vector3(0.0, DEFAULT_SHIP_YAW, 0.0)
 
 const MAX_HEALTH := 100.0
 const MAX_HINT_ELAPSED := 86400.0
@@ -39,6 +49,13 @@ var hint_level := 0
 var visited_scenes: Array[String] = [SCENE_FOREST]
 var memory_shards: Array[String] = []
 var health := MAX_HEALTH
+var movement_mode := MOVEMENT_ON_FOOT
+var ship_scene_id := DEFAULT_SHIP_SCENE_ID
+var ship_position := DEFAULT_SHIP_POSITION
+var ship_rotation := DEFAULT_SHIP_ROTATION
+var ship_landed := true
+var ship_last_landed_position := DEFAULT_SHIP_POSITION
+var ship_last_landed_yaw := DEFAULT_SHIP_YAW
 
 
 func _init() -> void:
@@ -60,6 +77,13 @@ func new_game() -> void:
 	visited_scenes.assign([SCENE_FOREST])
 	memory_shards.clear()
 	health = MAX_HEALTH
+	movement_mode = MOVEMENT_ON_FOOT
+	ship_scene_id = DEFAULT_SHIP_SCENE_ID
+	ship_position = DEFAULT_SHIP_POSITION
+	ship_rotation = DEFAULT_SHIP_ROTATION
+	ship_landed = true
+	ship_last_landed_position = DEFAULT_SHIP_POSITION
+	ship_last_landed_yaw = DEFAULT_SHIP_YAW
 
 
 func to_dict() -> Dictionary:
@@ -81,6 +105,19 @@ func to_dict() -> Dictionary:
 		"visited_scenes": visited_scenes.duplicate(),
 		"memory_shards": memory_shards.duplicate(),
 		"health": health,
+		"movement_mode": movement_mode,
+		"ship": {
+			"scene_id": ship_scene_id,
+			"position": [ship_position.x, ship_position.y, ship_position.z],
+			"rotation": [ship_rotation.x, ship_rotation.y, ship_rotation.z],
+			"landed": ship_landed,
+			"last_landed_position": [
+				ship_last_landed_position.x,
+				ship_last_landed_position.y,
+				ship_last_landed_position.z,
+			],
+			"last_landed_yaw": ship_last_landed_yaw,
+		},
 	}
 
 
@@ -104,6 +141,13 @@ func restore(data: Dictionary) -> bool:
 	visited_scenes.assign(normalized.visited_scenes)
 	memory_shards.assign(normalized.memory_shards)
 	health = normalized.health
+	movement_mode = normalized.movement_mode
+	ship_scene_id = normalized.ship_scene_id
+	ship_position = normalized.ship_position
+	ship_rotation = normalized.ship_rotation
+	ship_landed = normalized.ship_landed
+	ship_last_landed_position = normalized.ship_last_landed_position
+	ship_last_landed_yaw = normalized.ship_last_landed_yaw
 	return true
 
 
@@ -111,6 +155,71 @@ static func is_valid_snapshot(data: Variant) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false
 	return not _normalize_snapshot(data).is_empty()
+
+
+## Upgrades an exact schema-v1 snapshot without changing any of its existing fields.
+## An empty result means that the legacy snapshot was malformed.
+static func migrate_v1_snapshot(data: Variant) -> Dictionary:
+	if typeof(data) != TYPE_DICTIONARY or _normalize_v1_snapshot(data).is_empty():
+		return {}
+	var migrated: Dictionary = data.duplicate(true)
+	migrated["movement_mode"] = MOVEMENT_ON_FOOT
+	migrated["ship"] = {
+		"scene_id": DEFAULT_SHIP_SCENE_ID,
+		"position": [DEFAULT_SHIP_POSITION.x, DEFAULT_SHIP_POSITION.y, DEFAULT_SHIP_POSITION.z],
+		"rotation": [DEFAULT_SHIP_ROTATION.x, DEFAULT_SHIP_ROTATION.y, DEFAULT_SHIP_ROTATION.z],
+		"landed": true,
+		"last_landed_position": [
+			DEFAULT_SHIP_POSITION.x,
+			DEFAULT_SHIP_POSITION.y,
+			DEFAULT_SHIP_POSITION.z,
+		],
+		"last_landed_yaw": DEFAULT_SHIP_YAW,
+	}
+	return migrated if is_valid_snapshot(migrated) else {}
+
+
+func set_movement_mode(next_mode: String) -> bool:
+	if next_mode not in VALID_MOVEMENT_MODES:
+		return false
+	if next_mode == MOVEMENT_SHIP and (ship_scene_id != scene_id or ship_landed):
+		return false
+	movement_mode = next_mode
+	return true
+
+
+## Replaces all ship persistence fields together, rejecting an invalid partial state.
+func set_ship_state(
+	next_scene_id: String,
+	next_position: Vector3,
+	next_rotation: Vector3,
+	next_landed: bool,
+	next_last_landed_position: Vector3,
+	next_last_landed_yaw: float
+) -> bool:
+	var candidate := to_dict()
+	candidate.ship = {
+		"scene_id": next_scene_id,
+		"position": [next_position.x, next_position.y, next_position.z],
+		"rotation": [next_rotation.x, next_rotation.y, next_rotation.z],
+		"landed": next_landed,
+		"last_landed_position": [
+			next_last_landed_position.x,
+			next_last_landed_position.y,
+			next_last_landed_position.z,
+		],
+		"last_landed_yaw": next_last_landed_yaw,
+	}
+	var normalized := _normalize_snapshot(candidate)
+	if normalized.is_empty():
+		return false
+	ship_scene_id = normalized.ship_scene_id
+	ship_position = normalized.ship_position
+	ship_rotation = normalized.ship_rotation
+	ship_landed = normalized.ship_landed
+	ship_last_landed_position = normalized.ship_last_landed_position
+	ship_last_landed_yaw = normalized.ship_last_landed_yaw
+	return true
 
 
 func set_prism_orientation(index: int, orientation: int) -> bool:
@@ -179,6 +288,8 @@ func collect_memory_shard(shard_id: String = MEMORY_SHARD_ID) -> bool:
 
 
 func travel_to(next_scene_id: String) -> bool:
+	if movement_mode == MOVEMENT_SHIP:
+		return false
 	if next_scene_id not in VALID_SCENES:
 		return false
 	if next_scene_id == SCENE_RUINS and not crystal_collected:
@@ -192,12 +303,103 @@ func travel_to(next_scene_id: String) -> bool:
 	return true
 
 
+## Moves the player and their one ship through a portal as one valid transaction.
+func travel_ship_to(next_scene_id: String, launch_position: Vector3, launch_rotation: Vector3) -> bool:
+	if movement_mode != MOVEMENT_SHIP or ship_scene_id != scene_id or ship_landed:
+		return false
+	if next_scene_id not in VALID_SCENES:
+		return false
+	if next_scene_id == SCENE_RUINS and not crystal_collected:
+		return false
+	var candidate := to_dict()
+	candidate.scene_id = next_scene_id
+	if next_scene_id not in candidate.visited_scenes:
+		candidate.visited_scenes.append(next_scene_id)
+	candidate.ship.scene_id = next_scene_id
+	candidate.ship.position = [launch_position.x, launch_position.y, launch_position.z]
+	candidate.ship.rotation = [launch_rotation.x, launch_rotation.y, launch_rotation.z]
+	# The launch pose is the first safe recovery point in the destination.  The
+	# schema intentionally has one last-landing transform for the personal ship.
+	candidate.ship.last_landed_position = [launch_position.x, launch_position.y, launch_position.z]
+	candidate.ship.last_landed_yaw = launch_rotation.y
+	var normalized := _normalize_snapshot(candidate)
+	if normalized.is_empty():
+		return false
+	var changed_scene := scene_id != next_scene_id
+	scene_id = normalized.scene_id
+	visited_scenes.assign(normalized.visited_scenes)
+	ship_scene_id = normalized.ship_scene_id
+	ship_position = normalized.ship_position
+	ship_rotation = normalized.ship_rotation
+	ship_last_landed_position = normalized.ship_last_landed_position
+	ship_last_landed_yaw = normalized.ship_last_landed_yaw
+	if changed_scene:
+		scene_changed.emit(next_scene_id)
+	return true
+
+
 static func _normalize_snapshot(data: Dictionary) -> Dictionary:
+	if not _has_exact_keys(data, [
+		"scene_id", "player", "flags", "prism_orientations", "hint",
+		"visited_scenes", "memory_shards", "health", "movement_mode", "ship"
+	]):
+		return {}
+	var normalized := _normalize_common_snapshot(data)
+	if normalized.is_empty():
+		return {}
+
+	var saved_movement_mode: Variant = data.movement_mode
+	if typeof(saved_movement_mode) != TYPE_STRING or saved_movement_mode not in VALID_MOVEMENT_MODES:
+		return {}
+	var ship: Variant = data.ship
+	if typeof(ship) != TYPE_DICTIONARY or not _has_exact_keys(ship, [
+		"scene_id", "position", "rotation", "landed", "last_landed_position", "last_landed_yaw"
+	]):
+		return {}
+	var saved_ship_scene: Variant = ship.scene_id
+	if (
+		typeof(saved_ship_scene) != TYPE_STRING
+		or saved_ship_scene not in VALID_SCENES
+		or saved_ship_scene not in normalized.visited_scenes
+	):
+		return {}
+	var saved_ship_position: Variant = _parse_vector3(ship.position)
+	var saved_ship_rotation: Variant = _parse_ship_rotation(ship.rotation)
+	var saved_last_landed_position: Variant = _parse_vector3(ship.last_landed_position)
+	var saved_last_landed_yaw: Variant = _parse_number(
+		ship.last_landed_yaw, -MAX_TRANSFORM_COMPONENT, MAX_TRANSFORM_COMPONENT
+	)
+	if (
+		saved_ship_position == null
+		or saved_ship_rotation == null
+		or typeof(ship.landed) != TYPE_BOOL
+		or saved_last_landed_position == null
+		or saved_last_landed_yaw == null
+	):
+		return {}
+	if saved_movement_mode == MOVEMENT_SHIP and (saved_ship_scene != normalized.scene_id or ship.landed):
+		return {}
+
+	normalized["movement_mode"] = saved_movement_mode
+	normalized["ship_scene_id"] = saved_ship_scene
+	normalized["ship_position"] = saved_ship_position
+	normalized["ship_rotation"] = saved_ship_rotation
+	normalized["ship_landed"] = ship.landed
+	normalized["ship_last_landed_position"] = saved_last_landed_position
+	normalized["ship_last_landed_yaw"] = saved_last_landed_yaw
+	return normalized
+
+
+static func _normalize_v1_snapshot(data: Dictionary) -> Dictionary:
 	if not _has_exact_keys(data, [
 		"scene_id", "player", "flags", "prism_orientations", "hint",
 		"visited_scenes", "memory_shards", "health"
 	]):
 		return {}
+	return _normalize_common_snapshot(data)
+
+
+static func _normalize_common_snapshot(data: Dictionary) -> Dictionary:
 
 	var saved_scene: Variant = data.scene_id
 	if typeof(saved_scene) != TYPE_STRING or saved_scene not in VALID_SCENES:
@@ -297,6 +499,13 @@ static func _parse_vector3(value: Variant) -> Variant:
 			return null
 		components.append(parsed)
 	return Vector3(components[0], components[1], components[2])
+
+
+static func _parse_ship_rotation(value: Variant) -> Variant:
+	var parsed: Variant = _parse_vector3(value)
+	if parsed == null or parsed.x < -PI / 2.0 or parsed.x > PI / 2.0 or not is_zero_approx(parsed.z):
+		return null
+	return parsed
 
 
 static func _parse_number(value: Variant, minimum: float, maximum: float) -> Variant:
